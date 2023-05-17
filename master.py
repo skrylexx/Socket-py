@@ -1,6 +1,7 @@
 import socket, multiprocessing 
 #import logging
 import csv, os
+import re
 
 if __name__ == "__main__" :
 
@@ -32,39 +33,54 @@ if __name__ == "__main__" :
                         #print("L'adresse ip '{}' est déjà été renseignée.".format(address[0]))
                     print ('{} a envoyé : "{}"'.format(address,message))
                     
+                    
                     #déclaration des élèments du fichier CSV
                     data=[
                         [address[0], message]
                     ]
+                    ip="{}".format(address[0])
                     #vérification de l'existence du fichier sinon création + ajout des valeurs
-                    if os.path.exists('addresses/clients/{}-address.csv'.format(message))==False:
-                        with open('addresses/clients/{}-address.csv'.format(message), 'w', encoding="utf-8") as f:
-                            writer = csv.writer(f)
-                            writer.writerow(data)
-                            f.close()
+                    if os.path.exists('addresses/clients/{}-address.csv'.format(message)):
+                        with open('addresses/clients/{}-address.csv'.format(message), 'r', encoding="utf-8") as f:
+                            f.readlines()
+                            ad=re.search(ip)
+                            if ad==True:
+                                f.close()
+                                print('{} est une IP deja enregistree.')
+                            else:
+                                with open('addresses/clients/{}-address.csv'.format(message), 'a', encoding="utf-8") as f:
+                                    writer = csv.writer(f)
+                                    writer.writerow(data)
+                                    f.close()
                     else:
-                        with open('addresses/clients/{}-address.csv'.format(message), 'a', encoding="utf-8") as f:
-                            writer = csv.writer(f)
-                            writer.writerow(data)
-                            f.close()
+                        with open('addresses/clients/{}-address.csv'.format(message), 'w', encoding="utf-8") as f:
+                                    writer = csv.writer(f)
+                                    writer.writerow(data)
+                                    f.close()
                         
-                        
-                        #on vérifie si le fichier existe, sinon on le créé et on y ajoute les données
-                        if os.path.exists('addresses/global/global-address.csv')==False:
-                            with open('addresses/global/global-address.csv', 'w', encoding="utf-8") as f:
-                                writer = csv.writer(f)
-                                writer.writerow(data)
+                    #on vérifie si le fichier existe, sinon on le créé et on y ajoute les données
+                    if os.path.exists('addresses/global/global-address.csv'):
+                        with open('addresses/global/global-address.csv', 'r', encoding="utf-8") as f:
+                            f.readlines()
+                            ad=re.search(ip)
+                            if ad==True:
                                 f.close()
-                        else:
-                            with open('addresses/global/global-address.csv', 'a', encoding="utf-8") as f:
-                                writer = csv.writer(f)
-                                writer.writerow(data)
-                                f.close()
+                                print('{} est une IP deja enregistree.')
+                            else:
+                                with open('addresses/global/global-address.csv', 'a', encoding="utf-8") as f:
+                                    writer = csv.writer(f)
+                                    writer.writerow(data)
+                                    f.close()
+                    else:
+                        with open('addresses/global/global-address.csv'.format(message), 'w', encoding="utf-8") as f:
+                                    writer = csv.writer(f)
+                                    writer.writerow(data)
+                                    f.close()
                             
                     #print(table)
                     
                     
                     # réponse au client
-                    conn.sendall(str.encode('message "{}" reçu de {} et affiché'.format(message,address))) #sendall permet d'envoyer la totalitées des données ou jusqu'à l'erreur. send() s'arrete à un montant donné de données.
+                    conn.sendall(str.encode("Connexion recue ! Adresse ip enregistree pour l'utilisateur {}.".format(message))) #sendall permet d'envoyer la totalitées des données ou jusqu'à l'erreur. send() s'arrete à un montant donné de données.
                     
                     #reception adresse mac de machine connectée, et comparaison de l'IPv4 recue avec celle deja enregistrée et action ensuite
